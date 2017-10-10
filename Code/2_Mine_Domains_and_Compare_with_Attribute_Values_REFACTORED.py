@@ -27,8 +27,8 @@ def main(*args):
 	listDomainsValues = []
 	for domain in allDomains:
 		if domain.name in fcFieldsDomains.values() and domain.domainType == 'CodedValue':
-				for val, desc in domain.codedValues.items():
-					listDomainsValues.append([domain.name, val])
+			for val, desc in domain.codedValues.items():
+				listDomainsValues.append([domain.name, val])
 
 	# format new subset as a dict structure for use in main operation
 	fcDomainsValues = {}
