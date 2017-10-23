@@ -31,7 +31,7 @@ for rawPath in rawList:
 	partFour = rawPath.split('\\')[-2][4:6]
 	partFive = rawPath.split('\\')[-2][-1].upper()
 	try:
-		plssid =  '{0}0{1}0{2}0{3}0{4}0'.format(partOne, partTwo, partThree, partFour, partFive)
+		plssid = '{0}0{1}0{2}0{3}0{4}0'.format(partOne, partTwo, partThree, partFour, partFive)
 	except:
 		arcpy.AddMessage('Index error. Cannot save {0}\n'.format(rawPath))
 
