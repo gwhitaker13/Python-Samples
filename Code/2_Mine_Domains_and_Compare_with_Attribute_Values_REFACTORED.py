@@ -43,10 +43,12 @@ def main(*args):
 	with arcpy.da.SearchCursor(fc, fields) as cursor:
 		for row in cursor:
 			index = range(len(fields))
-			for i in index:
-				field = fields[i]
+
+			for i, field in enumerate(fields):
 				tableValue = row[i]
-				codedValues = fcDomainsValues.get(fcFieldsDomains.get(field))
+				dKey = fcFieldsDomains.get(field) # resolve key error using .get()
+				codedValues = fcDomainsValues.get(dKey) # same here
+
 				if tableValue <> None and tableValue not in codedValues:
 					arcpy.AddWarning('\n{0}: {1}'.format(field, tableValue))
 					for codedValue in codedValues:
