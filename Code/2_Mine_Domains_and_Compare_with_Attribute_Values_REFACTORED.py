@@ -1,20 +1,14 @@
-"""
-Extracts geodatabase domain information and compares to exisiting attribute values, 
-reports inconsistencies
-Greg Whitaker, GIS Analyst II
-Lakewood, CO
-2017
-______________________________________________________________________________________
-"""
+def checkDomainValues(fc, gdb):
+	"""
+	mine field domains and compare coded values to existing values.
 
-# build main function
-def main(*args):
-	# import module(s)
-	import arcpy
+	ex:
+	errors = checkDomainValues(fc, gdb)
+	returns {field name : [objectid,...]}
 
-	# get arguments
-	fc = arcpy.GetParameterAsText(0)
-	gdb = arcpy.GetParameterAsText(1)
+	use objectids to select/rectify bad values.
+	full geoprocessing tool to come.
+	"""
 
 	# get all gdb domians, all fc fields
 	allDomains = arcpy.da.ListDomains(gdb)
@@ -25,7 +19,7 @@ def main(*args):
 					   for field in allFields
 					   if field.domain}
 
-	# get subset of allDomains and respective values
+	# get subset of allDomains and respective values-REFACTORED
 	listDomainsValues = []
 	for domain in allDomains:
 		if domain.name in fcFieldsDomains.values() and domain.domainType == 'CodedValue':
@@ -62,8 +56,3 @@ def main(*args):
 
 	# return dictionary {field name : [objectid,...]}
 	return errors
-
-# execute main
-if __name__ == '__main__':
-    argv = tuple(arcpy.GetParameterAsText(i) for i in range(arcpy.GetArgumentCount()))
-    main(*argv)
