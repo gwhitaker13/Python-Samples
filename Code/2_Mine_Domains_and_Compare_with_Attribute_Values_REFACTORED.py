@@ -21,9 +21,11 @@ def main(*args):
 	allFields = arcpy.ListFields(fc)
 
 	# put subset of allFields that have a domain in dict
-	fcFieldsDomains = {field.name : field.domain for field in allFields if field.domain}
+	fcFieldsDomains = {field.name : field.domain
+					   for field in allFields
+					   if field.domain}
 
-	# put subset of allDomains and respective values in list
+	# get subset of allDomains and respective values
 	listDomainsValues = []
 	for domain in allDomains:
 		if domain.name in fcFieldsDomains.values() and domain.domainType == 'CodedValue':
@@ -38,21 +40,28 @@ def main(*args):
 		else:
 			fcDomainsValues[line[0]] = [line[1]]
 
-	# iterate over each row, compare table value to respective field domain values
-	fields = fcFieldsDomains.keys()
-	with arcpy.da.SearchCursor(fc, fields) as cursor:
+	# compare table value to respective field domain values-REFACTORED
+	oidFields = ['OBJECTID'] + fcFieldsDomains.keys()
+	errors = {}
+	with arcpy.da.SearchCursor(fc, oidFields) as cursor:
 		for row in cursor:
-			index = range(len(fields))
-
-			for i, field in enumerate(fields):
+			# get all fields and indicies
+			for i, field in enumerate(oidFields):
+				oid = row[0]
 				tableValue = row[i]
-				dKey = fcFieldsDomains.get(field) # resolve key error using .get()
-				codedValues = fcDomainsValues.get(dKey) # same here
+				# exclude oid field from loop, chain fields/domains to get coded values
+				if field <> 'OBJECTID':
+					dKey = fcFieldsDomains.get(field) # resolve key error using .get()
+					codedValues = fcDomainsValues.get(dKey) # same here
+					# exclude nulls and evaluate, put errors in dictionary
+					if tableValue <> None and tableValue not in codedValues:
+						if field in errors:
+							errors[field].append(oid)
+						else:
+							errors[field] = [oid]
 
-				if tableValue <> None and tableValue not in codedValues:
-					arcpy.AddWarning('\n{0}: {1}'.format(field, tableValue))
-					for codedValue in codedValues:
-						arcpy.AddWarning('    {0}'.format(codedValue))
+	# return dictionary {field name : [objectid,...]}
+	return errors
 
 # execute main
 if __name__ == '__main__':
